@@ -8,6 +8,10 @@
     ],
     "spriteTypePaths" : [
         {"name":"MULTI_COLOR_BLOCK", "path" : "resources/animated_sprites/MultiColorBlock/MultiColorBlock.json"},
-        {"name":"RED_CIRCLE_MAN", "path" : "resources/animated_sprites/RedCircleMan/RedCircleMan.json" }
+        {"name":"RED_CIRCLE_MAN", "path" : "resources/animated_sprites/RedCircleMan/RedCircleMan.json" },
+        {"name":"ANT", "path" : "resources/animated_sprites/ant/ant.json" },
+        {"name":"BED_BUG", "path" : "resources/animated_sprites/bed_bug2/bed_bug2.json" },
+        {"name":"MANTIS", "path" : "resources/animated_sprites/praying_mantis2/praying_mantis2.json" }
+        
     ]
 }
