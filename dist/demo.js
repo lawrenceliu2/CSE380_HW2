@@ -54,7 +54,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
         viewportText.text = "Viewport (w, h, x, y): (" + viewport.getWidth() + ", " + viewport.getHeight() + ", " + viewport.getX() + ", " + viewport.getY() + ")";
     });
     var spritesInViewportText = new TextRenderer_1.TextToRender("Sprites in Viewport", "", 20, 90, function () {
-        spritesInViewportText.text = "Sprites in Viewport: " + sceneGraph.scope().length;
+        spritesInViewportText.text = "Sprites in Viewport: " + sceneGraph.numViewport();
     });
     var worldDimensionsText = new TextRenderer_1.TextToRender("World Dimensions", "", 20, 110, function () {
         worldDimensionsText.text = "World Dimensions (w, h): (" + worldWidth + ", " + worldHeight + ")";
@@ -2051,8 +2051,8 @@ var WebGLGameSpriteRenderer = function (_WebGLGameRenderingCo) {
             var spriteHeight = spriteType.getSpriteHeight();
             var spriteXInPixels = sprite.getPosition().getX() + spriteWidth / 2;
             var spriteYInPixels = sprite.getPosition().getY() + spriteHeight / 2;
-            var spriteXTranslate = (spriteXInPixels - canvasWidth / 2) / (canvasWidth / 2);
-            var spriteYTranslate = (spriteYInPixels - canvasHeight / 2) / (canvasHeight / 2);
+            var spriteXTranslate = (spriteXInPixels - (viewport.getX() + viewport.getWidth() / 2)) / (canvasWidth / 2); //(canvasWidth/2))/(canvasWidth/2);
+            var spriteYTranslate = (spriteYInPixels - (viewport.getY() + viewport.getHeight() / 2)) / (canvasHeight / 2); //(canvasHeight/2))/(canvasHeight/2);
             this.meshTranslate.setX(spriteXTranslate);
             this.meshTranslate.setY(-spriteYTranslate);
             // CALCULATE HOW MUCH TO SCALE THE QUAD PER THE SPRITE SIZE
@@ -2346,6 +2346,7 @@ var SceneGraph = function () {
 
                     sprite.update(delta);
                 }
+                //Update viewport
             } catch (err) {
                 _didIteratorError2 = true;
                 _iteratorError2 = err;
@@ -2393,6 +2394,40 @@ var SceneGraph = function () {
             }
 
             return this.visibleSet;
+        }
+    }, {
+        key: "numViewport",
+        value: function numViewport() {
+            var counter = void 0;
+            counter = 0;
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = this.animatedSprites[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var sprite = _step4.value;
+
+                    if (sprite.getPosition().getX() >= this.viewport.getX() && sprite.getPosition().getX() <= this.viewport.getX() + this.viewport.getWidth() && sprite.getPosition().getY() >= this.viewport.getY() && sprite.getPosition().getY() <= this.viewport.getY() + this.viewport.getHeight()) {
+                        counter++;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
+
+            return counter;
         }
     }]);
 
@@ -2914,9 +2949,9 @@ var UIController = function UIController(canvasId, initScene) {
     this.mouseDownHandler = function (event) {
         var mousePressX = event.clientX;
         var mousePressY = event.clientY;
-        var sprite = _this.scene.getSpriteAt(mousePressX, mousePressY);
-        console.log("mousePressX: " + mousePressX);
-        console.log("mousePressY: " + mousePressY);
+        var sprite = _this.scene.getSpriteAt(mousePressX + _this.scene.getViewport().getX(), mousePressY + _this.scene.getViewport().getY());
+        console.log("mousePressX: " + mousePressX); //+ this.scene.getViewport().getX());
+        console.log("mousePressY: " + mousePressY); //+ this.scene.getViewport().getY());
         console.log("sprite: " + sprite);
         if (sprite != null) {
             // START DRAGGING IT
@@ -2933,14 +2968,49 @@ var UIController = function UIController(canvasId, initScene) {
     this.mouseUpHandler = function (event) {
         _this.spriteToDrag = null;
     };
+    this.dHandler = function (event) {
+        var worldWidth = _this.scene.getTiledLayers()[0].getColumns() * _this.scene.getTiledLayers()[0].getTileSet().getTileWidth();
+        var worldHeight = _this.scene.getTiledLayers()[0].getRows() * _this.scene.getTiledLayers()[0].getTileSet().getTileHeight();
+        if (event.keyCode == 68) {
+            console.log("KEY PRESSED: d");
+            if (_this.scene.getViewport().getX() + 100 >= worldWidth - _this.scene.getViewport().getWidth()) {
+                _this.scene.getViewport().setPosition(worldWidth - _this.scene.getViewport().getWidth(), _this.scene.getViewport().getY());
+            } else {
+                _this.scene.getViewport().inc(100, 0);
+            }
+        } else if (event.keyCode == 65) {
+            console.log("KEY PRESSED: a");
+            if (_this.scene.getViewport().getX() - 100 <= 0) {
+                _this.scene.getViewport().setPosition(0, _this.scene.getViewport().getY());
+            } else {
+                _this.scene.getViewport().inc(-100, 0);
+            }
+        } else if (event.keyCode == 87) {
+            console.log("KEY PRESSED: w");
+            if (_this.scene.getViewport().getY() - 100 <= 0) {
+                _this.scene.getViewport().setPosition(_this.scene.getViewport().getX(), 0);
+            } else {
+                _this.scene.getViewport().inc(0, -100);
+            }
+        } else if (event.keyCode == 83) {
+            console.log("KEY PRESSED: s");
+            if (_this.scene.getViewport().getY() + 100 >= worldHeight - _this.scene.getViewport().getHeight()) {
+                _this.scene.getViewport().setPosition(_this.scene.getViewport().getX(), worldHeight - _this.scene.getViewport().getHeight());
+            } else {
+                _this.scene.getViewport().inc(0, 100);
+            }
+        }
+    };
     this.spriteToDrag = null;
     this.scene = initScene;
     this.dragOffsetX = -1;
     this.dragOffsetY = -1;
     var canvas = document.getElementById(canvasId);
+    canvas.tabIndex = 1;
     canvas.addEventListener("mousedown", this.mouseDownHandler);
     canvas.addEventListener("mousemove", this.mouseMoveHandler);
     canvas.addEventListener("mouseup", this.mouseUpHandler);
+    canvas.addEventListener("keydown", this.dHandler);
 };
 
 exports.UIController = UIController;

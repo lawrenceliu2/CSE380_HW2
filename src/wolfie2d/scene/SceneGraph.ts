@@ -101,6 +101,8 @@ export class SceneGraph {
         for (let sprite of this.animatedSprites) {
             sprite.update(delta);
         }
+
+        //Update viewport
     }
 
     public scope() : Array<SceneObject> {
@@ -113,5 +115,17 @@ export class SceneGraph {
         }
 
         return this.visibleSet;
+    }
+
+    public numViewport() : number{
+        let counter : number;
+        counter = 0;
+        for (let sprite of this.animatedSprites) {
+            if (sprite.getPosition().getX() >= this.viewport.getX() && sprite.getPosition().getX() <= (this.viewport.getX() + this.viewport.getWidth())
+            && sprite.getPosition().getY() >= this.viewport.getY() && sprite.getPosition().getY() <= (this.viewport.getY() + this.viewport.getHeight())){
+                counter++;
+            }
+        }
+        return counter;
     }
 }

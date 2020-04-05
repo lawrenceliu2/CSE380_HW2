@@ -63,7 +63,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
                                                         + viewport.getY() + ")";
     });
     let spritesInViewportText : TextToRender = new TextToRender("Sprites in Viewport", "", 20, 90, function() {
-        spritesInViewportText.text = "Sprites in Viewport: " + sceneGraph.scope().length;
+        spritesInViewportText.text = "Sprites in Viewport: " + sceneGraph.numViewport();
     });
     let worldDimensionsText : TextToRender = new TextToRender("World Dimensions", "", 20, 110, function() {
         worldDimensionsText.text = "World Dimensions (w, h): (" + worldWidth + ", " + worldHeight + ")";
