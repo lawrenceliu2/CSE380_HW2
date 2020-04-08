@@ -24,6 +24,9 @@ export class SceneGraph {
     // THE VIEWPORT IS USED TO FILTER OUT WHAT IS NOT VISIBLE
     private viewport : Viewport;
 
+    private playerX : number;
+    private playerY : number;
+
     public constructor() {
         // DEFAULT CONSTRUCTOR INITIALIZES OUR DATA STRUCTURES
         this.clear();
@@ -88,13 +91,17 @@ export class SceneGraph {
         return null;
     }
 
-    public moveMantis() : AnimatedSprite{
-        for (let sprite of this.animatedSprites){
-            if (sprite.getPlayer() != null){
-                return sprite;
-            }
-        }
-        return null;
+    public getPlayerX() : number{
+        return this.playerX;
+    }
+
+    public getPlayerY() : number{
+        return this.playerY;
+    }
+
+    public setPlayerXY(x : number, y : number) : void{
+        this.playerX = x;
+        this.playerY = y;
     }
 
     /**

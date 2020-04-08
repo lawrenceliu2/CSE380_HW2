@@ -22,7 +22,7 @@ export class UIController {
         canvas.addEventListener("mousemove", this.mouseMoveHandler);
         canvas.addEventListener("mouseup", this.mouseUpHandler);
         canvas.addEventListener("keydown", this.dHandler);
-        //canvas.addEventListener("mouseenter", this.mouseEnterHandler);
+        canvas.addEventListener("mouseenter", this.mouseEnterHandler);
     }
 
     public mouseDownHandler = (event : MouseEvent) : void => {
@@ -47,6 +47,8 @@ export class UIController {
                                                 this.spriteToDrag.getPosition().getZ(), 
                                                 this.spriteToDrag.getPosition().getW());
         }
+        //console.log("set playerXY to: (" + event.clientX + ", " + event.clientY + ")");
+        this.scene.setPlayerXY(event.clientX + this.scene.getViewport().getX(), event.clientY + this.scene.getViewport().getY());
     }
 
     public mouseUpHandler = (event : MouseEvent) : void => {
@@ -91,25 +93,7 @@ export class UIController {
         }
     }
 
-    /*public mouseEnterHandler = (event : MouseEvent) : void => {
-        console.log("mousePressX: " + event.clientX);
-        console.log("mousePressY: " + event.clientY);
-        let targetX = event.clientX; //+ this.dragOffsetX;
-        let targetY = event.clientY; //+ this.dragOffsetY;
-        
-        let diffX = targetX - this.scene.moveMantis().getPosition().getX();
-        let diffY = targetY - this.scene.moveMantis().getPosition().getY();
-        
-        if (Math.abs (diffX) >= 1) {
-            targetX += (diffX * 0.1);	
-        }
-        
-        if (Math.abs (diffY) >= 1) {
-            targetY += (diffY * 0.1);
-        }
-
-        this.scene.moveMantis().getPosition().set(targetX, targetY,
-            this.spriteToDrag.getPosition().getZ(), 
-            this.spriteToDrag.getPosition().getW());
-    }*/
+    public mouseEnterHandler = (event : MouseEvent) : void => {
+        this.scene.setPlayerXY(event.clientX + this.scene.getViewport().getX(), event.clientY + this.scene.getViewport().getY());
+    }
 }

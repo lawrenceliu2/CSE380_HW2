@@ -52,4 +52,8 @@ export abstract class Behavior{
     public think(x: number, y : number) : number{
         return 0;
     }
+
+    public think3(x : number, y : number) : Array<number>{
+        return null;
+    }
 }

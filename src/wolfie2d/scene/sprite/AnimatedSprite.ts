@@ -4,6 +4,7 @@ import {Behavior} from './Behavior'
 import { SceneGraph } from '../SceneGraph';
 import { BugBehavior1 } from './BugBehavior1';
 import { BugBehavior2 } from './BugBehavior2';
+import { BugBehavior3 } from './BugBehavior3';
 
 export class AnimatedSprite extends SceneObject {
     private spriteType : AnimatedSpriteType;
@@ -12,7 +13,7 @@ export class AnimatedSprite extends SceneObject {
     private frameCounter : number;
     private behavior: Behavior;
     private player : Boolean;
-    //Depending on behavior, //rotation 0 = Up, 1 = right, 2 = down, 3 = left
+    //rotation 0 = Up, 1 = right, 2 = down, 3 = left
     private direction : number;
     
     public constructor(initSpriteType : AnimatedSpriteType, initState : string) {
@@ -70,7 +71,11 @@ export class AnimatedSprite extends SceneObject {
     }
 
     public addBehavior(state : number, scene : SceneGraph, worldWidth : number, worldHeight : number) : void{
+        if (state == 1){
             this.behavior = new BugBehavior1(state, scene, worldWidth, worldHeight);
+        }else{
+            this.behavior = new BugBehavior3(state, scene, worldWidth, worldHeight);
+        }
     }
 
     public addBehavior2(state : number, scene : SceneGraph, worldWidth : number, worldHeight : number, player : AnimatedSprite) : void{
@@ -80,6 +85,7 @@ export class AnimatedSprite extends SceneObject {
     public update(delta : number) : void {
         //dont forget to change animation state
         if (this.behavior != null){
+            //Ant behavior
             if (this.behavior.getState() == 1){
                 if (this.getState() == "IDLE"){
                     this.setState("WALK");
@@ -131,7 +137,9 @@ export class AnimatedSprite extends SceneObject {
                         }
                         break;
                 }
-            }else if (this.behavior.getState() == 2){
+            }
+            //Bed bug behavior
+            else if (this.behavior.getState() == 2){
                 let temp = 0;
                 temp = this.behavior.think(this.getPosition().getX(), this.getPosition().getY());
 
@@ -226,6 +234,23 @@ export class AnimatedSprite extends SceneObject {
                                     }break;
                             }
                             break;  
+                    }
+                }
+            }
+            //Player behavior
+            else{
+                let temp : Array<number>;
+                temp = this.behavior.think3(this.getPosition().getX(), this.getPosition().getY());
+                if (temp != null){
+                    if (this.getPosition().getX() - (temp[0] * 5) >= this.behavior.getWidth()){
+                        this.getPosition().setX(this.behavior.getWidth());
+                    }else{
+                        this.getPosition().setX(this.getPosition().getX() - (temp[0] * 5));
+                    }
+                    if (this.getPosition().getY() - (temp[1] * 5) >= this.behavior.getHeight()){
+                        this.getPosition().setY(this.behavior.getHeight());
+                    }else{
+                        this.getPosition().setY(this.getPosition().getY() - (temp[1] * 5));
                     }
                 }
             }
