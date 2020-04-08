@@ -30,17 +30,17 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
         var randomX = Math.random() * worldWidth;
         var randomY = Math.random() * worldHeight;
         _randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        _randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth, worldHeight);
+        _randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth - 100, worldHeight - 100);
         game.getSceneGraph().addAnimatedSprite(_randomSprite);
     }
     // Add 50 bed bugs
     for (var _i = 0; _i < 50; _i++) {
         var _type2 = game.getResourceManager().getAnimatedSpriteType("BED_BUG");
         var _randomSprite2 = new AnimatedSprite_1.AnimatedSprite(_type2, "IDLE");
-        var _randomX = Math.random() * worldWidth;
-        var _randomY = Math.random() * worldHeight;
+        var _randomX = Math.random() * (worldWidth - 50);
+        var _randomY = Math.random() * (worldHeight - 50);
         _randomSprite2.getPosition().set(_randomX, _randomY, 0, 1);
-        _randomSprite2.addBehavior(2, game.getSceneGraph(), worldWidth, worldHeight);
+        _randomSprite2.addBehavior(2, game.getSceneGraph(), worldWidth - 100, worldHeight - 100);
         game.getSceneGraph().addAnimatedSprite(_randomSprite2);
     }
     var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
@@ -2692,9 +2692,9 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
             //dont forget to change animation state
             if (this.behavior != null) {
                 if (this.behavior.getState() == 1) {
-                    /*if (this.getState() == "IDLE"){
+                    if (this.getState() == "IDLE") {
                         this.setState("WALK");
-                    }*/
+                    }
                     var temp = 0;
                     temp = this.behavior.think(this.getPosition().getX(), this.getPosition().getY());
                     switch (temp) {
@@ -2746,38 +2746,30 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
                             break;
                     }
                 } else if (this.behavior.getState() == 2) {
+                    //THESE GUYS NOT IDLING
                     var _temp = 0;
                     _temp = this.behavior.think(this.getPosition().getX(), this.getPosition().getY());
                     switch (_temp) {
                         case -3:
-                            if (this.getState() == "WALK") {
-                                console.log("ye");
-                                this.setState("IDLE");
-                            }
                             this.setDirection(3);
                             break;
                         case -2:
-                            if (this.getState() == "WALK") {
-                                this.setState("IDLE");
-                            }
                             this.setDirection(2);
                             break;
                         case -1:
-                            if (this.getState() == "WALK") {
-                                this.setState("IDLE");
-                            }
                             this.setDirection(1);
                             break;
                         case 0:
-                            if (this.getState() == "WALK") {
-                                this.setState("IDLE");
-                            }
                             this.setDirection(0);
                             break;
                         case 1:
+                            if (this.getState() == "WALK") {
+                                this.setState("IDLE");
+                            }
                             break;
                         case 2:
                             if (this.getState() == "IDLE") {
+                                console.log("setting walk");
                                 this.setState("WALK");
                             }
                             switch (this.direction) {

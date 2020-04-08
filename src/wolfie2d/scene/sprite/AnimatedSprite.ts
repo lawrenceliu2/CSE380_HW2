@@ -141,34 +141,25 @@ export class AnimatedSprite extends SceneObject {
 
                 switch(temp){
                     case -3:
-                        if (this.getState() == "WALK"){
-                            console.log("ye");
-                            this.setState("IDLE");
-                        }
                         this.setDirection(3);
                         break;
                     case -2:
-                        if (this.getState() == "WALK"){
-                            this.setState("IDLE");
-                        }
                         this.setDirection(2);
                         break;
                     case -1:
-                        if (this.getState() == "WALK"){
-                            this.setState("IDLE");
-                        }
                         this.setDirection(1);
                         break;
                     case 0:
-                        if (this.getState() == "WALK"){
-                            this.setState("IDLE");
-                        }
                         this.setDirection(0);
                         break;
                     case 1:
+                        if (this.getState() == "WALK"){
+                            this.setState("IDLE");
+                        }
                         break;
                     case 2:
                         if (this.getState() == "IDLE"){
+                            console.log("setting walk");
                             this.setState("WALK");
                         }
                         switch(this.direction){

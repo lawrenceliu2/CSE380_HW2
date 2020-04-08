@@ -35,17 +35,17 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
         let randomX : number = Math.random() * worldWidth;
         let randomY : number = Math.random() * worldHeight;
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth, worldHeight);
+        randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth - 100, worldHeight - 100);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
     // Add 50 bed bugs
     for (let i = 0; i < 50; i++) {
         let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("BED_BUG");
         let randomSprite : AnimatedSprite = new AnimatedSprite(type, "IDLE");
-        let randomX : number = Math.random() * worldWidth;
-        let randomY : number = Math.random() * worldHeight;
+        let randomX : number = Math.random() * (worldWidth - 50);
+        let randomY : number = Math.random() * (worldHeight - 50);
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        randomSprite.addBehavior(2, game.getSceneGraph(), worldWidth, worldHeight);
+        randomSprite.addBehavior(2, game.getSceneGraph(), worldWidth - 100, worldHeight - 100);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
 
