@@ -88,6 +88,15 @@ export class SceneGraph {
         return null;
     }
 
+    public moveMantis() : AnimatedSprite{
+        for (let sprite of this.animatedSprites){
+            if (sprite.getPlayer() != null){
+                return sprite;
+            }
+        }
+        return null;
+    }
+
     /**
      * update
      * 
@@ -101,8 +110,6 @@ export class SceneGraph {
         for (let sprite of this.animatedSprites) {
             sprite.update(delta);
         }
-
-        //Update viewport
     }
 
     public scope() : Array<SceneObject> {

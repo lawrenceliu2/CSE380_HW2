@@ -25,22 +25,28 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     var worldHeight = world[0].getRows() * world[0].getTileSet().getTileHeight();
     // Add 50 aphids
     for (var i = 0; i < 50; i++) {
-        var type = game.getResourceManager().getAnimatedSpriteType("ANT");
-        var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "IDLE");
+        var _type = game.getResourceManager().getAnimatedSpriteType("ANT");
+        var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "IDLE");
         var randomX = Math.random() * worldWidth;
         var randomY = Math.random() * worldHeight;
-        randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        game.getSceneGraph().addAnimatedSprite(randomSprite);
+        _randomSprite.getPosition().set(randomX, randomY, 0, 1);
+        _randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth, worldHeight);
+        game.getSceneGraph().addAnimatedSprite(_randomSprite);
     }
     // Add 50 mosquitos
     for (var _i = 0; _i < 50; _i++) {
-        var _type = game.getResourceManager().getAnimatedSpriteType("BED_BUG");
-        var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "IDLE");
+        var _type2 = game.getResourceManager().getAnimatedSpriteType("BED_BUG");
+        var _randomSprite2 = new AnimatedSprite_1.AnimatedSprite(_type2, "IDLE");
         var _randomX = Math.random() * worldWidth;
         var _randomY = Math.random() * worldHeight;
-        _randomSprite.getPosition().set(_randomX, _randomY, 0, 1);
-        game.getSceneGraph().addAnimatedSprite(_randomSprite);
+        _randomSprite2.getPosition().set(_randomX, _randomY, 0, 1);
+        game.getSceneGraph().addAnimatedSprite(_randomSprite2);
     }
+    var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
+    var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "IDLE");
+    randomSprite.setPlayer();
+    randomSprite.getPosition().set(880, 480, 0, 1);
+    game.getSceneGraph().addAnimatedSprite(randomSprite);
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
     // NUMBER OF SPRITES IN THE SCENE
     // LOCATION IN GAME WORLD OF VIEWPORT
@@ -177,7 +183,7 @@ var Game = function (_GameLoopTemplate_1$G) {
 
 exports.Game = Game;
 
-},{"./files/ResourceManager":3,"./loop/GameLoopTemplate":4,"./rendering/WebGLGameRenderingSystem":10,"./scene/SceneGraph":15,"./scene/Viewport":17,"./ui/UIController":22}],3:[function(require,module,exports){
+},{"./files/ResourceManager":3,"./loop/GameLoopTemplate":4,"./rendering/WebGLGameRenderingSystem":10,"./scene/SceneGraph":15,"./scene/Viewport":17,"./ui/UIController":24}],3:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -544,7 +550,7 @@ var ResourceManager = function () {
 
 exports.ResourceManager = ResourceManager;
 
-},{"../rendering/WebGLGameTexture":13,"../scene/sprite/AnimatedSpriteType":19,"../scene/tiles/TileSet":20,"../scene/tiles/TiledLayer":21}],4:[function(require,module,exports){
+},{"../rendering/WebGLGameTexture":13,"../scene/sprite/AnimatedSpriteType":19,"../scene/tiles/TileSet":22,"../scene/tiles/TiledLayer":23}],4:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2058,9 +2064,13 @@ var WebGLGameSpriteRenderer = function (_WebGLGameRenderingCo) {
             // CALCULATE HOW MUCH TO SCALE THE QUAD PER THE SPRITE SIZE
             var defaultWidth = canvasWidth;
             var defaultHeight = canvasHeight;
+            //let rotation : number = Math.PI/2;
+            var scaleXDiff = 0; //rotation / 30;
+            var scaleYDiff = 0; //rotation / 15;
             var scaleX = 2 * spriteWidth / defaultWidth;
             var scaleY = 2 * spriteHeight / defaultHeight;
-            this.meshScale.set(scaleX, scaleY, 0.0, 0.0); //1.0, 1.0);
+            this.meshScale.set(scaleX + scaleXDiff, scaleY - scaleYDiff, 0.0, 0.0); //1.0, 1.0);
+            //this.meshRotate.setZ(Math.PI/2)
             // @todo - COMBINE THIS WITH THE ROTATE AND SCALE VALUES FROM THE SPRITE
             MathUtilities_1.MathUtilities.identity(this.meshTransform);
             MathUtilities_1.MathUtilities.model(this.meshTransform, this.meshTranslate, this.meshRotate, this.meshScale);
@@ -2323,19 +2333,9 @@ var SceneGraph = function () {
 
             return null;
         }
-        /**
-         * update
-         *
-         * Called once per frame, this function updates the state of all the objects
-         * in the scene.
-         *
-         * @param delta The time that has passed since the last time this update
-         * funcation was called.
-         */
-
     }, {
-        key: "update",
-        value: function update(delta) {
+        key: "moveMantis",
+        value: function moveMantis() {
             var _iteratorNormalCompletion2 = true;
             var _didIteratorError2 = false;
             var _iteratorError2 = undefined;
@@ -2344,9 +2344,10 @@ var SceneGraph = function () {
                 for (var _iterator2 = this.animatedSprites[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                     var sprite = _step2.value;
 
-                    sprite.update(delta);
+                    if (sprite.getPlayer() != null) {
+                        return sprite;
+                    }
                 }
-                //Update viewport
             } catch (err) {
                 _didIteratorError2 = true;
                 _iteratorError2 = err;
@@ -2361,13 +2362,22 @@ var SceneGraph = function () {
                     }
                 }
             }
+
+            return null;
         }
+        /**
+         * update
+         *
+         * Called once per frame, this function updates the state of all the objects
+         * in the scene.
+         *
+         * @param delta The time that has passed since the last time this update
+         * funcation was called.
+         */
+
     }, {
-        key: "scope",
-        value: function scope() {
-            // CLEAR OUT THE OLD
-            this.visibleSet = [];
-            // PUT ALL THE SCENE OBJECTS INTO THE VISIBLE SET
+        key: "update",
+        value: function update(delta) {
             var _iteratorNormalCompletion3 = true;
             var _didIteratorError3 = false;
             var _iteratorError3 = undefined;
@@ -2376,7 +2386,7 @@ var SceneGraph = function () {
                 for (var _iterator3 = this.animatedSprites[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
                     var sprite = _step3.value;
 
-                    this.visibleSet.push(sprite);
+                    sprite.update(delta);
                 }
             } catch (err) {
                 _didIteratorError3 = true;
@@ -2392,14 +2402,13 @@ var SceneGraph = function () {
                     }
                 }
             }
-
-            return this.visibleSet;
         }
     }, {
-        key: "numViewport",
-        value: function numViewport() {
-            var counter = void 0;
-            counter = 0;
+        key: "scope",
+        value: function scope() {
+            // CLEAR OUT THE OLD
+            this.visibleSet = [];
+            // PUT ALL THE SCENE OBJECTS INTO THE VISIBLE SET
             var _iteratorNormalCompletion4 = true;
             var _didIteratorError4 = false;
             var _iteratorError4 = undefined;
@@ -2408,9 +2417,7 @@ var SceneGraph = function () {
                 for (var _iterator4 = this.animatedSprites[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
                     var sprite = _step4.value;
 
-                    if (sprite.getPosition().getX() >= this.viewport.getX() && sprite.getPosition().getX() <= this.viewport.getX() + this.viewport.getWidth() && sprite.getPosition().getY() >= this.viewport.getY() && sprite.getPosition().getY() <= this.viewport.getY() + this.viewport.getHeight()) {
-                        counter++;
-                    }
+                    this.visibleSet.push(sprite);
                 }
             } catch (err) {
                 _didIteratorError4 = true;
@@ -2423,6 +2430,40 @@ var SceneGraph = function () {
                 } finally {
                     if (_didIteratorError4) {
                         throw _iteratorError4;
+                    }
+                }
+            }
+
+            return this.visibleSet;
+        }
+    }, {
+        key: "numViewport",
+        value: function numViewport() {
+            var counter = void 0;
+            counter = 0;
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
+
+            try {
+                for (var _iterator5 = this.animatedSprites[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var sprite = _step5.value;
+
+                    if (sprite.getPosition().getX() >= this.viewport.getX() && sprite.getPosition().getX() <= this.viewport.getX() + this.viewport.getWidth() && sprite.getPosition().getY() >= this.viewport.getY() && sprite.getPosition().getY() <= this.viewport.getY() + this.viewport.getHeight()) {
+                        counter++;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
+                    }
+                } finally {
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
                     }
                 }
             }
@@ -2560,6 +2601,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var SceneObject_1 = require("../SceneObject");
+var BugBehavior1_1 = require("./BugBehavior1");
 
 var AnimatedSprite = function (_SceneObject_1$SceneO) {
     _inherits(AnimatedSprite, _SceneObject_1$SceneO);
@@ -2574,10 +2616,26 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
         _this.state = initState;
         _this.animationFrameIndex = 0;
         _this.frameCounter = 0;
+        _this.player = false;
+        _this.direction = 0;
+        _this.behavior = null;
         return _this;
     }
 
     _createClass(AnimatedSprite, [{
+        key: "setPlayer",
+        value: function setPlayer() {
+            this.player = true;
+        }
+    }, {
+        key: "getPlayer",
+        value: function getPlayer() {
+            if (this.player) {
+                return this;
+            }
+            return null;
+        }
+    }, {
         key: "getAnimationFrameIndex",
         value: function getAnimationFrameIndex() {
             return this.animationFrameIndex;
@@ -2605,8 +2663,80 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
             this.frameCounter = 0;
         }
     }, {
+        key: "getDirection",
+        value: function getDirection() {
+            return this.direction;
+        }
+    }, {
+        key: "setDirection",
+        value: function setDirection(direction) {
+            this.direction = direction;
+        }
+    }, {
+        key: "addBehavior",
+        value: function addBehavior(state, scene, worldWidth, worldHeight) {
+            this.behavior = new BugBehavior1_1.BugBehavior1(state, scene, worldWidth, worldHeight);
+        }
+    }, {
         key: "update",
         value: function update(delta) {
+            //dont forget to change animation state
+            if (this.behavior != null) {
+                if (this.behavior) {
+                    if (this.getState() == "IDLE") {
+                        this.setState("WALK");
+                    }
+                    var temp = 0;
+                    temp = this.behavior.think(this.getPosition().getX(), this.getPosition().getY());
+                    switch (temp) {
+                        case -3:
+                            this.setDirection(3);
+                            break;
+                        case -2:
+                            this.setDirection(2);
+                            break;
+                        case -1:
+                            this.setDirection(1);
+                            break;
+                        case 0:
+                            this.setDirection(0);
+                            break;
+                        case 1:
+                            break;
+                        case 2:
+                            switch (this.direction) {
+                                case 0:
+                                    if (this.getPosition().getY() - 5 <= 0) {
+                                        this.getPosition().setY(0);
+                                    } else {
+                                        this.getPosition().setY(this.getPosition().getY() - 5);
+                                    }
+                                    break;
+                                case 1:
+                                    if (this.getPosition().getX() + 5 >= this.behavior.getWidth()) {
+                                        this.getPosition().setX(this.behavior.getWidth());
+                                    } else {
+                                        this.getPosition().setX(this.getPosition().getX() + 5);
+                                    }
+                                    break;
+                                case 2:
+                                    if (this.getPosition().getY() + 5 >= this.behavior.getHeight()) {
+                                        this.getPosition().setY(this.behavior.getHeight());
+                                    } else {
+                                        this.getPosition().setY(this.getPosition().getY() + 5);
+                                    }
+                                    break;
+                                case 3:
+                                    if (this.getPosition().getX() - 5 <= 0) {
+                                        this.getPosition().setX(0);
+                                    } else {
+                                        this.getPosition().setX(this.getPosition().getX() - 5);
+                                    }
+                                    break;
+                            }
+                    }
+                } //Else if bugbehavior2 or 3
+            }
             this.frameCounter++;
             // HAVE WE GONE PAST THE LAST FRAME IN THE ANIMATION?
             var currentAnimation = this.spriteType.getAnimation(this.state);
@@ -2659,7 +2789,7 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
 
 exports.AnimatedSprite = AnimatedSprite;
 
-},{"../SceneObject":16}],19:[function(require,module,exports){
+},{"../SceneObject":16,"./BugBehavior1":21}],19:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2752,6 +2882,180 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 Object.defineProperty(exports, "__esModule", { value: true });
 
+var Behavior = function () {
+    //State is what behavior to do, 0 = nothing, 1 = random walk in direction, 2 = patrol back and forth in place then run, 3 = follow mouse
+    function Behavior(state, scene, x, y) {
+        _classCallCheck(this, Behavior);
+
+        this.state = state;
+        this.scene = scene;
+        this.worldWidth = x;
+        this.worldHeight = y;
+    }
+
+    _createClass(Behavior, [{
+        key: "setState",
+        value: function setState(state) {
+            this.state = state;
+        }
+    }, {
+        key: "getState",
+        value: function getState() {
+            return this.state;
+        }
+    }, {
+        key: "getScene",
+        value: function getScene() {
+            return this.scene;
+        }
+    }, {
+        key: "getWidth",
+        value: function getWidth() {
+            return this.worldWidth;
+        }
+    }, {
+        key: "getHeight",
+        value: function getHeight() {
+            return this.worldHeight;
+        }
+    }, {
+        key: "think",
+        value: function think(x, y) {
+            return 0;
+        }
+    }]);
+
+    return Behavior;
+}();
+
+exports.Behavior = Behavior;
+
+},{}],21:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Behavior_1 = require("./Behavior");
+
+var BugBehavior1 = function (_Behavior_1$Behavior) {
+    _inherits(BugBehavior1, _Behavior_1$Behavior);
+
+    function BugBehavior1(state, scene, x, y) {
+        _classCallCheck(this, BugBehavior1);
+
+        var _this = _possibleConstructorReturn(this, (BugBehavior1.__proto__ || Object.getPrototypeOf(BugBehavior1)).call(this, state, scene, x, y));
+
+        _this.walking = false;
+        _this.frameCounter = 0;
+        _this.direction = 0;
+        return _this;
+    }
+
+    _createClass(BugBehavior1, [{
+        key: "getWalking",
+        value: function getWalking() {
+            return this.walking;
+        }
+    }, {
+        key: "setWalking",
+        value: function setWalking() {
+            this.walking = true;
+        }
+    }, {
+        key: "getFrameCounter",
+        value: function getFrameCounter() {
+            return this.frameCounter;
+        }
+    }, {
+        key: "decrementFrames",
+        value: function decrementFrames() {
+            this.frameCounter -= 1;
+        }
+    }, {
+        key: "doneWalking",
+        value: function doneWalking() {
+            this.walking = false;
+        }
+    }, {
+        key: "randomDirection",
+        value: function randomDirection() {
+            this.direction = Math.floor(Math.random() * Math.floor(4));
+            //Random number of frames from 0 to 300, so 0 to 5 seconds of walking in any direction
+            this.frameCounter = Math.floor(Math.random() * Math.floor(300));
+            this.setWalking();
+        }
+    }, {
+        key: "think",
+        value: function think(x, y) {
+            if (this.getWalking()) {
+                if (x <= 0 && this.direction == 3) {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                    }
+                    return 1;
+                } else if (x >= this.getWidth() && this.direction == 1) {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                    }
+                    return 1;
+                } else if (y <= 0 && this.direction == 0) {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                    }
+                    return 1;
+                } else if (y >= this.getHeight() && this.direction == 2) {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                    }
+                    return 1;
+                } else {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                    }
+                    return 2;
+                }
+            } else {
+                this.randomDirection();
+                this.setWalking();
+                if (this.direction == 0) {
+                    return 0;
+                } else if (this.direction == 1) {
+                    return -1;
+                } else if (this.direction == 2) {
+                    return -2;
+                } else {
+                    return -3;
+                }
+            }
+        }
+    }]);
+
+    return BugBehavior1;
+}(Behavior_1.Behavior);
+
+exports.BugBehavior1 = BugBehavior1;
+
+},{"./Behavior":20}],22:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
 var TileSet = function () {
     function TileSet(initName, initColumns, initRows, initTileWidth, initTileHeight, initTileSpacing, initTileSheetWidth, initTileSheetHeight, initFirstIndex, initTexture) {
         _classCallCheck(this, TileSet);
@@ -2825,7 +3129,7 @@ var TileSet = function () {
 
 exports.TileSet = TileSet;
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2934,7 +3238,7 @@ var TiledLayer = function () {
 
 exports.TiledLayer = TiledLayer;
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -3011,6 +3315,7 @@ var UIController = function UIController(canvasId, initScene) {
     canvas.addEventListener("mousemove", this.mouseMoveHandler);
     canvas.addEventListener("mouseup", this.mouseUpHandler);
     canvas.addEventListener("keydown", this.dHandler);
+    //canvas.addEventListener("mouseenter", this.mouseEnterHandler);
 };
 
 exports.UIController = UIController;

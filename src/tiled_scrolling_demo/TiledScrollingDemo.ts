@@ -35,6 +35,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
         let randomX : number = Math.random() * worldWidth;
         let randomY : number = Math.random() * worldHeight;
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
+        randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth, worldHeight);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
     // Add 50 mosquitos
@@ -46,6 +47,12 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
+
+    let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("MANTIS");
+    let randomSprite : AnimatedSprite = new AnimatedSprite(type, "IDLE");
+    randomSprite.setPlayer();
+    randomSprite.getPosition().set(880, 480, 0, 1);
+    game.getSceneGraph().addAnimatedSprite(randomSprite);
 
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
         // NUMBER OF SPRITES IN THE SCENE
