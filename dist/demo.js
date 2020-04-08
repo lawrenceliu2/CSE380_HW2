@@ -23,31 +23,32 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     var world = game.getSceneGraph().getTiledLayers();
     var worldWidth = world[0].getColumns() * world[0].getTileSet().getTileWidth();
     var worldHeight = world[0].getRows() * world[0].getTileSet().getTileHeight();
+    //Add player character mantis
+    var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
+    var player = new AnimatedSprite_1.AnimatedSprite(type, "IDLE");
+    player.setPlayer();
+    player.getPosition().set(880, 480, 0, 1);
+    game.getSceneGraph().addAnimatedSprite(player);
     // Add 50 ants
     for (var i = 0; i < 50; i++) {
         var _type = game.getResourceManager().getAnimatedSpriteType("ANT");
-        var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "IDLE");
+        var randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "IDLE");
         var randomX = Math.random() * worldWidth;
         var randomY = Math.random() * worldHeight;
-        _randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        _randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth - 100, worldHeight - 100);
-        game.getSceneGraph().addAnimatedSprite(_randomSprite);
+        randomSprite.getPosition().set(randomX, randomY, 0, 1);
+        randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth - 100, worldHeight - 100);
+        game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
     // Add 50 bed bugs
     for (var _i = 0; _i < 50; _i++) {
         var _type2 = game.getResourceManager().getAnimatedSpriteType("BED_BUG");
-        var _randomSprite2 = new AnimatedSprite_1.AnimatedSprite(_type2, "IDLE");
+        var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type2, "IDLE");
         var _randomX = Math.random() * (worldWidth - 50);
         var _randomY = Math.random() * (worldHeight - 50);
-        _randomSprite2.getPosition().set(_randomX, _randomY, 0, 1);
-        _randomSprite2.addBehavior(2, game.getSceneGraph(), worldWidth - 100, worldHeight - 100);
-        game.getSceneGraph().addAnimatedSprite(_randomSprite2);
+        _randomSprite.getPosition().set(_randomX, _randomY, 0, 1);
+        _randomSprite.addBehavior2(2, game.getSceneGraph(), worldWidth - 100, worldHeight - 100, player);
+        game.getSceneGraph().addAnimatedSprite(_randomSprite);
     }
-    var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
-    var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "IDLE");
-    randomSprite.setPlayer();
-    randomSprite.getPosition().set(880, 480, 0, 1);
-    game.getSceneGraph().addAnimatedSprite(randomSprite);
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
     // NUMBER OF SPRITES IN THE SCENE
     // LOCATION IN GAME WORLD OF VIEWPORT
@@ -2677,14 +2678,12 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
     }, {
         key: "addBehavior",
         value: function addBehavior(state, scene, worldWidth, worldHeight) {
-            switch (state) {
-                case 1:
-                    this.behavior = new BugBehavior1_1.BugBehavior1(state, scene, worldWidth, worldHeight);
-                    break;
-                case 2:
-                    this.behavior = new BugBehavior2_1.BugBehavior2(state, scene, worldWidth, worldHeight);
-                    break;
-            }
+            this.behavior = new BugBehavior1_1.BugBehavior1(state, scene, worldWidth, worldHeight);
+        }
+    }, {
+        key: "addBehavior2",
+        value: function addBehavior2(state, scene, worldWidth, worldHeight, player) {
+            this.behavior = new BugBehavior2_1.BugBehavior2(state, scene, worldWidth, worldHeight, player);
         }
     }, {
         key: "update",
@@ -2746,63 +2745,108 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
                             break;
                     }
                 } else if (this.behavior.getState() == 2) {
-                    //THESE GUYS NOT IDLING
                     var _temp = 0;
                     _temp = this.behavior.think(this.getPosition().getX(), this.getPosition().getY());
-                    switch (_temp) {
-                        case -3:
-                            this.setDirection(3);
-                            break;
-                        case -2:
-                            this.setDirection(2);
-                            break;
-                        case -1:
-                            this.setDirection(1);
-                            break;
-                        case 0:
-                            this.setDirection(0);
-                            break;
-                        case 1:
-                            if (this.getState() == "WALK") {
-                                this.setState("IDLE");
-                            }
-                            break;
-                        case 2:
-                            if (this.getState() == "IDLE") {
-                                console.log("setting walk");
-                                this.setState("WALK");
-                            }
-                            switch (this.direction) {
-                                case 0:
-                                    if (this.getPosition().getY() - 5 <= 0) {
-                                        this.getPosition().setY(0);
-                                    } else {
-                                        this.getPosition().setY(this.getPosition().getY() - 5);
-                                    }
-                                    break;
-                                case 1:
-                                    if (this.getPosition().getX() + 5 >= this.behavior.getWidth()) {
-                                        this.getPosition().setX(this.behavior.getWidth());
-                                    } else {
-                                        this.getPosition().setX(this.getPosition().getX() + 5);
-                                    }
-                                    break;
-                                case 2:
-                                    if (this.getPosition().getY() + 5 >= this.behavior.getHeight()) {
-                                        this.getPosition().setY(this.behavior.getHeight());
-                                    } else {
-                                        this.getPosition().setY(this.getPosition().getY() + 5);
-                                    }
-                                    break;
-                                case 3:
-                                    if (this.getPosition().getX() - 5 <= 0) {
-                                        this.getPosition().setX(0);
-                                    } else {
-                                        this.getPosition().setX(this.getPosition().getX() - 5);
-                                    }
-                                    break;
-                            }
-                            break;
+                    if (this.behavior.getRunning()) {
+                        switch (_temp) {
+                            case -3:
+                                this.setDirection(3);
+                                break;
+                            case -2:
+                                this.setDirection(2);
+                                break;
+                            case -1:
+                                this.setDirection(1);
+                                break;
+                            case 0:
+                                this.setDirection(0);
+                                break;
+                        }
+                        switch (this.direction) {
+                            case 0:
+                                if (this.getPosition().getY() - 5 <= 0) {
+                                    this.getPosition().setY(0);
+                                } else {
+                                    this.getPosition().setY(this.getPosition().getY() - 5);
+                                }
+                                break;
+                            case 1:
+                                if (this.getPosition().getX() + 5 >= this.behavior.getWidth()) {
+                                    this.getPosition().setX(this.behavior.getWidth());
+                                } else {
+                                    this.getPosition().setX(this.getPosition().getX() + 5);
+                                }
+                                break;
+                            case 2:
+                                if (this.getPosition().getY() + 5 >= this.behavior.getHeight()) {
+                                    this.getPosition().setY(this.behavior.getHeight());
+                                } else {
+                                    this.getPosition().setY(this.getPosition().getY() + 5);
+                                }
+                                break;
+                            case 3:
+                                if (this.getPosition().getX() - 5 <= 0) {
+                                    this.getPosition().setX(0);
+                                } else {
+                                    this.getPosition().setX(this.getPosition().getX() - 5);
+                                }
+                                break;
+                        }
+                    } else {
+                        switch (_temp) {
+                            case -3:
+                                this.setDirection(3);
+                                break;
+                            case -2:
+                                this.setDirection(2);
+                                break;
+                            case -1:
+                                this.setDirection(1);
+                                break;
+                            case 0:
+                                this.setDirection(0);
+                                break;
+                            case 1:
+                                if (this.getState() == "WALK") {
+                                    this.setState("IDLE");
+                                }
+                                break;
+                            case 2:
+                                if (this.getState() == "IDLE") {
+                                    this.setState("WALK");
+                                }
+                                switch (this.direction) {
+                                    case 0:
+                                        if (this.getPosition().getY() - 5 <= 0) {
+                                            this.getPosition().setY(0);
+                                        } else {
+                                            this.getPosition().setY(this.getPosition().getY() - 5);
+                                        }
+                                        break;
+                                    case 1:
+                                        if (this.getPosition().getX() + 5 >= this.behavior.getWidth()) {
+                                            this.getPosition().setX(this.behavior.getWidth());
+                                        } else {
+                                            this.getPosition().setX(this.getPosition().getX() + 5);
+                                        }
+                                        break;
+                                    case 2:
+                                        if (this.getPosition().getY() + 5 >= this.behavior.getHeight()) {
+                                            this.getPosition().setY(this.behavior.getHeight());
+                                        } else {
+                                            this.getPosition().setY(this.getPosition().getY() + 5);
+                                        }
+                                        break;
+                                    case 3:
+                                        if (this.getPosition().getX() - 5 <= 0) {
+                                            this.getPosition().setX(0);
+                                        } else {
+                                            this.getPosition().setX(this.getPosition().getX() - 5);
+                                        }
+                                        break;
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -2960,9 +3004,24 @@ var Behavior = function () {
         this.scene = scene;
         this.worldWidth = x;
         this.worldHeight = y;
+        this.runAway = false;
     }
 
     _createClass(Behavior, [{
+        key: "getRunning",
+        value: function getRunning() {
+            return this.runAway;
+        }
+    }, {
+        key: "changeRunning",
+        value: function changeRunning() {
+            if (this.runAway) {
+                this.runAway = false;
+            } else {
+                this.runAway = true;
+            }
+        }
+    }, {
         key: "setState",
         value: function setState(state) {
             this.state = state;
@@ -3133,7 +3192,7 @@ var Behavior_1 = require("./Behavior");
 var BugBehavior2 = function (_Behavior_1$Behavior) {
     _inherits(BugBehavior2, _Behavior_1$Behavior);
 
-    function BugBehavior2(state, scene, x, y) {
+    function BugBehavior2(state, scene, x, y, player) {
         _classCallCheck(this, BugBehavior2);
 
         var _this = _possibleConstructorReturn(this, (BugBehavior2.__proto__ || Object.getPrototypeOf(BugBehavior2)).call(this, state, scene, x, y));
@@ -3143,6 +3202,7 @@ var BugBehavior2 = function (_Behavior_1$Behavior) {
         //Direction 0 = Up, 1 = right, 2 = down, 3 = left
         _this.direction = Math.floor(Math.random() * Math.floor(4));
         _this.cooldown = 0;
+        _this.player = player;
         return _this;
     }
 
@@ -3150,6 +3210,11 @@ var BugBehavior2 = function (_Behavior_1$Behavior) {
         key: "getWalking",
         value: function getWalking() {
             return this.walking;
+        }
+    }, {
+        key: "getPlayer",
+        value: function getPlayer() {
+            return this.player;
         }
     }, {
         key: "setWalking",
@@ -3200,64 +3265,93 @@ var BugBehavior2 = function (_Behavior_1$Behavior) {
             }
         }
     }, {
+        key: "playerNearby",
+        value: function playerNearby(x, y) {
+            if (x - this.player.getPosition().getX() <= 60 && x - this.player.getPosition().getX() >= 0) {
+                this.direction = 1;
+                return -1;
+            } else if (this.player.getPosition().getX() - x <= 60 && this.player.getPosition().getX() - x >= 0) {
+                this.direction = 3;
+                return -3;
+            } else if (y - this.player.getPosition().getY() <= 60 && y - this.player.getPosition().getY() >= 0) {
+                this.direction = 2;
+                return -2;
+            } else if (this.player.getPosition().getY() - y <= 60 && this.player.getPosition().getY() - y >= 0) {
+                this.direction = 0;
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+    }, {
         key: "think",
         value: function think(x, y) {
-            if (this.getWalking()) {
-                if (x <= 0 && this.direction == 3) {
-                    this.decrementFrames();
-                    if (this.getFrameCounter() == 0) {
-                        this.doneWalking();
-                        this.refreshCooldown();
+            if (this.playerNearby(x, y) == 1) {
+                if (this.getRunning()) {
+                    this.changeRunning();
+                }
+                if (this.getWalking()) {
+                    if (x <= 0 && this.direction == 3) {
+                        this.decrementFrames();
+                        if (this.getFrameCounter() == 0) {
+                            this.doneWalking();
+                            this.refreshCooldown();
+                        }
+                        return 1;
+                    } else if (x >= this.getWidth() && this.direction == 1) {
+                        this.decrementFrames();
+                        if (this.getFrameCounter() == 0) {
+                            this.doneWalking();
+                            this.refreshCooldown();
+                        }
+                        return 1;
+                    } else if (y <= 0 && this.direction == 0) {
+                        this.decrementFrames();
+                        if (this.getFrameCounter() == 0) {
+                            this.doneWalking();
+                            this.refreshCooldown();
+                        }
+                        return 1;
+                    } else if (y >= this.getHeight() && this.direction == 2) {
+                        this.decrementFrames();
+                        if (this.getFrameCounter() == 0) {
+                            this.doneWalking();
+                            this.refreshCooldown();
+                        }
+                        return 1;
+                    } else {
+                        this.decrementFrames();
+                        if (this.getFrameCounter() == 0) {
+                            this.doneWalking();
+                            this.refreshCooldown();
+                        }
+                        return 2;
                     }
-                    return 1;
-                } else if (x >= this.getWidth() && this.direction == 1) {
-                    this.decrementFrames();
-                    if (this.getFrameCounter() == 0) {
-                        this.doneWalking();
-                        this.refreshCooldown();
-                    }
-                    return 1;
-                } else if (y <= 0 && this.direction == 0) {
-                    this.decrementFrames();
-                    if (this.getFrameCounter() == 0) {
-                        this.doneWalking();
-                        this.refreshCooldown();
-                    }
-                    return 1;
-                } else if (y >= this.getHeight() && this.direction == 2) {
-                    this.decrementFrames();
-                    if (this.getFrameCounter() == 0) {
-                        this.doneWalking();
-                        this.refreshCooldown();
-                    }
-                    return 1;
                 } else {
-                    this.decrementFrames();
-                    if (this.getFrameCounter() == 0) {
-                        this.doneWalking();
-                        this.refreshCooldown();
+                    if (this.cooldown == 0) {
+                        this.changeDirection();
+                        this.setWalking();
+                        this.frameCounter = 60;
+                        switch (this.direction) {
+                            case 0:
+                                return 0;
+                            case 1:
+                                return -1;
+                            case 2:
+                                return -2;
+                            case 3:
+                                return -3;
+                        }
+                    } else {
+                        this.decrementCooldown();
+                        return 1;
                     }
-                    return 2;
                 }
             } else {
-                if (this.cooldown == 0) {
-                    this.changeDirection();
-                    this.setWalking();
-                    this.frameCounter = 60;
-                    switch (this.direction) {
-                        case 0:
-                            return 0;
-                        case 1:
-                            return -1;
-                        case 2:
-                            return -2;
-                        case 3:
-                            return -3;
-                    }
-                } else {
-                    this.decrementCooldown();
-                    return 1;
+                if (!this.getRunning()) {
+                    this.changeRunning();
                 }
+                return this.playerNearby(x, y);
             }
         }
     }]);

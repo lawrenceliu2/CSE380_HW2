@@ -5,6 +5,7 @@ export abstract class Behavior{
     private scene : SceneGraph;
     private worldWidth : number;
     private worldHeight : number;
+    private runAway : boolean;
 
     //State is what behavior to do, 0 = nothing, 1 = random walk in direction, 2 = patrol back and forth in place then run, 3 = follow mouse
 
@@ -13,6 +14,19 @@ export abstract class Behavior{
         this.scene = scene;
         this.worldWidth = x;
         this.worldHeight = y;
+        this.runAway = false;
+    }
+
+    public getRunning() : boolean{
+        return this.runAway;
+    }
+
+    public changeRunning() : void{
+        if (this.runAway){
+            this.runAway = false;
+        }else{
+            this.runAway = true;
+        }
     }
 
     public setState(state: number) : void{

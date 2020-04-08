@@ -28,6 +28,14 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
     let world : TiledLayer[] = game.getSceneGraph().getTiledLayers();
     let worldWidth : number = world[0].getColumns() * world[0].getTileSet().getTileWidth();
     let worldHeight : number = world[0].getRows() * world[0].getTileSet().getTileHeight();
+
+    //Add player character mantis
+    let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("MANTIS");
+    let player : AnimatedSprite = new AnimatedSprite(type, "IDLE");
+    player.setPlayer();
+    player.getPosition().set(880, 480, 0, 1);
+    game.getSceneGraph().addAnimatedSprite(player);
+
     // Add 50 ants
     for (let i = 0; i < 50; i++) {
         let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("ANT");
@@ -45,15 +53,9 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
         let randomX : number = Math.random() * (worldWidth - 50);
         let randomY : number = Math.random() * (worldHeight - 50);
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        randomSprite.addBehavior(2, game.getSceneGraph(), worldWidth - 100, worldHeight - 100);
+        randomSprite.addBehavior2(2, game.getSceneGraph(), worldWidth - 100, worldHeight - 100, player);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
-
-    let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("MANTIS");
-    let randomSprite : AnimatedSprite = new AnimatedSprite(type, "IDLE");
-    randomSprite.setPlayer();
-    randomSprite.getPosition().set(880, 480, 0, 1);
-    game.getSceneGraph().addAnimatedSprite(randomSprite);
 
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
         // NUMBER OF SPRITES IN THE SCENE
