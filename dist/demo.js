@@ -23,7 +23,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     var world = game.getSceneGraph().getTiledLayers();
     var worldWidth = world[0].getColumns() * world[0].getTileSet().getTileWidth();
     var worldHeight = world[0].getRows() * world[0].getTileSet().getTileHeight();
-    // Add 50 aphids
+    // Add 50 ants
     for (var i = 0; i < 50; i++) {
         var _type = game.getResourceManager().getAnimatedSpriteType("ANT");
         var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "IDLE");
@@ -33,13 +33,14 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
         _randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth, worldHeight);
         game.getSceneGraph().addAnimatedSprite(_randomSprite);
     }
-    // Add 50 mosquitos
+    // Add 50 bed bugs
     for (var _i = 0; _i < 50; _i++) {
         var _type2 = game.getResourceManager().getAnimatedSpriteType("BED_BUG");
         var _randomSprite2 = new AnimatedSprite_1.AnimatedSprite(_type2, "IDLE");
         var _randomX = Math.random() * worldWidth;
         var _randomY = Math.random() * worldHeight;
         _randomSprite2.getPosition().set(_randomX, _randomY, 0, 1);
+        _randomSprite2.addBehavior(2, game.getSceneGraph(), worldWidth, worldHeight);
         game.getSceneGraph().addAnimatedSprite(_randomSprite2);
     }
     var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
@@ -183,7 +184,7 @@ var Game = function (_GameLoopTemplate_1$G) {
 
 exports.Game = Game;
 
-},{"./files/ResourceManager":3,"./loop/GameLoopTemplate":4,"./rendering/WebGLGameRenderingSystem":10,"./scene/SceneGraph":15,"./scene/Viewport":17,"./ui/UIController":24}],3:[function(require,module,exports){
+},{"./files/ResourceManager":3,"./loop/GameLoopTemplate":4,"./rendering/WebGLGameRenderingSystem":10,"./scene/SceneGraph":15,"./scene/Viewport":17,"./ui/UIController":25}],3:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -550,7 +551,7 @@ var ResourceManager = function () {
 
 exports.ResourceManager = ResourceManager;
 
-},{"../rendering/WebGLGameTexture":13,"../scene/sprite/AnimatedSpriteType":19,"../scene/tiles/TileSet":22,"../scene/tiles/TiledLayer":23}],4:[function(require,module,exports){
+},{"../rendering/WebGLGameTexture":13,"../scene/sprite/AnimatedSpriteType":19,"../scene/tiles/TileSet":23,"../scene/tiles/TiledLayer":24}],4:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2602,6 +2603,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 Object.defineProperty(exports, "__esModule", { value: true });
 var SceneObject_1 = require("../SceneObject");
 var BugBehavior1_1 = require("./BugBehavior1");
+var BugBehavior2_1 = require("./BugBehavior2");
 
 var AnimatedSprite = function (_SceneObject_1$SceneO) {
     _inherits(AnimatedSprite, _SceneObject_1$SceneO);
@@ -2675,17 +2677,24 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
     }, {
         key: "addBehavior",
         value: function addBehavior(state, scene, worldWidth, worldHeight) {
-            this.behavior = new BugBehavior1_1.BugBehavior1(state, scene, worldWidth, worldHeight);
+            switch (state) {
+                case 1:
+                    this.behavior = new BugBehavior1_1.BugBehavior1(state, scene, worldWidth, worldHeight);
+                    break;
+                case 2:
+                    this.behavior = new BugBehavior2_1.BugBehavior2(state, scene, worldWidth, worldHeight);
+                    break;
+            }
         }
     }, {
         key: "update",
         value: function update(delta) {
             //dont forget to change animation state
             if (this.behavior != null) {
-                if (this.behavior) {
-                    if (this.getState() == "IDLE") {
+                if (this.behavior.getState() == 1) {
+                    /*if (this.getState() == "IDLE"){
                         this.setState("WALK");
-                    }
+                    }*/
                     var temp = 0;
                     temp = this.behavior.think(this.getPosition().getX(), this.getPosition().getY());
                     switch (temp) {
@@ -2734,8 +2743,76 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
                                     }
                                     break;
                             }
+                            break;
                     }
-                } //Else if bugbehavior2 or 3
+                } else if (this.behavior.getState() == 2) {
+                    var _temp = 0;
+                    _temp = this.behavior.think(this.getPosition().getX(), this.getPosition().getY());
+                    switch (_temp) {
+                        case -3:
+                            if (this.getState() == "WALK") {
+                                console.log("ye");
+                                this.setState("IDLE");
+                            }
+                            this.setDirection(3);
+                            break;
+                        case -2:
+                            if (this.getState() == "WALK") {
+                                this.setState("IDLE");
+                            }
+                            this.setDirection(2);
+                            break;
+                        case -1:
+                            if (this.getState() == "WALK") {
+                                this.setState("IDLE");
+                            }
+                            this.setDirection(1);
+                            break;
+                        case 0:
+                            if (this.getState() == "WALK") {
+                                this.setState("IDLE");
+                            }
+                            this.setDirection(0);
+                            break;
+                        case 1:
+                            break;
+                        case 2:
+                            if (this.getState() == "IDLE") {
+                                this.setState("WALK");
+                            }
+                            switch (this.direction) {
+                                case 0:
+                                    if (this.getPosition().getY() - 5 <= 0) {
+                                        this.getPosition().setY(0);
+                                    } else {
+                                        this.getPosition().setY(this.getPosition().getY() - 5);
+                                    }
+                                    break;
+                                case 1:
+                                    if (this.getPosition().getX() + 5 >= this.behavior.getWidth()) {
+                                        this.getPosition().setX(this.behavior.getWidth());
+                                    } else {
+                                        this.getPosition().setX(this.getPosition().getX() + 5);
+                                    }
+                                    break;
+                                case 2:
+                                    if (this.getPosition().getY() + 5 >= this.behavior.getHeight()) {
+                                        this.getPosition().setY(this.behavior.getHeight());
+                                    } else {
+                                        this.getPosition().setY(this.getPosition().getY() + 5);
+                                    }
+                                    break;
+                                case 3:
+                                    if (this.getPosition().getX() - 5 <= 0) {
+                                        this.getPosition().setX(0);
+                                    } else {
+                                        this.getPosition().setX(this.getPosition().getX() - 5);
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                }
             }
             this.frameCounter++;
             // HAVE WE GONE PAST THE LAST FRAME IN THE ANIMATION?
@@ -2789,7 +2866,7 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
 
 exports.AnimatedSprite = AnimatedSprite;
 
-},{"../SceneObject":16,"./BugBehavior1":21}],19:[function(require,module,exports){
+},{"../SceneObject":16,"./BugBehavior1":21,"./BugBehavior2":22}],19:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3054,6 +3131,157 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Behavior_1 = require("./Behavior");
+
+var BugBehavior2 = function (_Behavior_1$Behavior) {
+    _inherits(BugBehavior2, _Behavior_1$Behavior);
+
+    function BugBehavior2(state, scene, x, y) {
+        _classCallCheck(this, BugBehavior2);
+
+        var _this = _possibleConstructorReturn(this, (BugBehavior2.__proto__ || Object.getPrototypeOf(BugBehavior2)).call(this, state, scene, x, y));
+
+        _this.walking = false;
+        _this.frameCounter = 0;
+        //Direction 0 = Up, 1 = right, 2 = down, 3 = left
+        _this.direction = Math.floor(Math.random() * Math.floor(4));
+        _this.cooldown = 0;
+        return _this;
+    }
+
+    _createClass(BugBehavior2, [{
+        key: "getWalking",
+        value: function getWalking() {
+            return this.walking;
+        }
+    }, {
+        key: "setWalking",
+        value: function setWalking() {
+            this.walking = true;
+        }
+    }, {
+        key: "getFrameCounter",
+        value: function getFrameCounter() {
+            return this.frameCounter;
+        }
+    }, {
+        key: "decrementFrames",
+        value: function decrementFrames() {
+            this.frameCounter -= 1;
+        }
+    }, {
+        key: "doneWalking",
+        value: function doneWalking() {
+            this.walking = false;
+        }
+    }, {
+        key: "getCooldown",
+        value: function getCooldown() {
+            return this.cooldown;
+        }
+    }, {
+        key: "decrementCooldown",
+        value: function decrementCooldown() {
+            this.cooldown -= 1;
+        }
+    }, {
+        key: "refreshCooldown",
+        value: function refreshCooldown() {
+            this.cooldown = 120;
+        }
+    }, {
+        key: "changeDirection",
+        value: function changeDirection() {
+            if (this.direction == 0) {
+                this.direction = 2;
+            } else if (this.direction == 1) {
+                this.direction = 3;
+            } else if (this.direction == 2) {
+                this.direction = 0;
+            } else {
+                this.direction = 1;
+            }
+        }
+    }, {
+        key: "think",
+        value: function think(x, y) {
+            if (this.getWalking()) {
+                if (x <= 0 && this.direction == 3) {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                        this.refreshCooldown();
+                    }
+                    return 1;
+                } else if (x >= this.getWidth() && this.direction == 1) {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                        this.refreshCooldown();
+                    }
+                    return 1;
+                } else if (y <= 0 && this.direction == 0) {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                        this.refreshCooldown();
+                    }
+                    return 1;
+                } else if (y >= this.getHeight() && this.direction == 2) {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                        this.refreshCooldown();
+                    }
+                    return 1;
+                } else {
+                    this.decrementFrames();
+                    if (this.getFrameCounter() == 0) {
+                        this.doneWalking();
+                        this.refreshCooldown();
+                    }
+                    return 2;
+                }
+            } else {
+                if (this.cooldown == 0) {
+                    this.changeDirection();
+                    this.setWalking();
+                    this.frameCounter = 60;
+                    switch (this.direction) {
+                        case 0:
+                            return 0;
+                        case 1:
+                            return -1;
+                        case 2:
+                            return -2;
+                        case 3:
+                            return -3;
+                    }
+                } else {
+                    this.decrementCooldown();
+                    return 1;
+                }
+            }
+        }
+    }]);
+
+    return BugBehavior2;
+}(Behavior_1.Behavior);
+
+exports.BugBehavior2 = BugBehavior2;
+
+},{"./Behavior":20}],23:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 Object.defineProperty(exports, "__esModule", { value: true });
 
 var TileSet = function () {
@@ -3129,7 +3357,7 @@ var TileSet = function () {
 
 exports.TileSet = TileSet;
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3238,7 +3466,7 @@ var TiledLayer = function () {
 
 exports.TiledLayer = TiledLayer;
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }

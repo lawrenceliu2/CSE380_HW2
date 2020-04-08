@@ -28,7 +28,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
     let world : TiledLayer[] = game.getSceneGraph().getTiledLayers();
     let worldWidth : number = world[0].getColumns() * world[0].getTileSet().getTileWidth();
     let worldHeight : number = world[0].getRows() * world[0].getTileSet().getTileHeight();
-    // Add 50 aphids
+    // Add 50 ants
     for (let i = 0; i < 50; i++) {
         let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("ANT");
         let randomSprite : AnimatedSprite = new AnimatedSprite(type, "IDLE");
@@ -38,13 +38,14 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
         randomSprite.addBehavior(1, game.getSceneGraph(), worldWidth, worldHeight);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
-    // Add 50 mosquitos
+    // Add 50 bed bugs
     for (let i = 0; i < 50; i++) {
         let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("BED_BUG");
         let randomSprite : AnimatedSprite = new AnimatedSprite(type, "IDLE");
         let randomX : number = Math.random() * worldWidth;
         let randomY : number = Math.random() * worldHeight;
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
+        randomSprite.addBehavior(2, game.getSceneGraph(), worldWidth, worldHeight);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
 
