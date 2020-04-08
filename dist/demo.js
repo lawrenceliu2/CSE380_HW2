@@ -3282,16 +3282,16 @@ var BugBehavior2 = function (_Behavior_1$Behavior) {
     }, {
         key: "playerNearby",
         value: function playerNearby(x, y) {
-            if (x - this.player.getPosition().getX() <= 60 && x - this.player.getPosition().getX() >= 0) {
+            if (x - this.player.getPosition().getX() <= 60 && x - this.player.getPosition().getX() >= 0 && Math.abs(y - this.player.getPosition().getY()) <= 60) {
                 this.direction = 1;
                 return -1;
-            } else if (this.player.getPosition().getX() - x <= 60 && this.player.getPosition().getX() - x >= 0) {
+            } else if (this.player.getPosition().getX() - x <= 60 && this.player.getPosition().getX() - x >= 0 && Math.abs(y - this.player.getPosition().getY()) <= 60) {
                 this.direction = 3;
                 return -3;
-            } else if (y - this.player.getPosition().getY() <= 60 && y - this.player.getPosition().getY() >= 0) {
+            } else if (y - this.player.getPosition().getY() <= 60 && y - this.player.getPosition().getY() >= 0 && Math.abs(x - this.player.getPosition().getX()) <= 60) {
                 this.direction = 2;
                 return -2;
-            } else if (this.player.getPosition().getY() - y <= 60 && this.player.getPosition().getY() - y >= 0) {
+            } else if (this.player.getPosition().getY() - y <= 60 && this.player.getPosition().getY() - y >= 0 && Math.abs(x - this.player.getPosition().getX()) <= 60) {
                 this.direction = 0;
                 return 0;
             } else {
