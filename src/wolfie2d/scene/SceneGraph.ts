@@ -27,6 +27,10 @@ export class SceneGraph {
     private playerX : number;
     private playerY : number;
 
+    private mantis : AnimatedSprite;
+
+    private done : boolean;
+
     public constructor() {
         // DEFAULT CONSTRUCTOR INITIALIZES OUR DATA STRUCTURES
         this.clear();
@@ -89,6 +93,50 @@ export class SceneGraph {
                 return sprite;
         }
         return null;
+    }
+
+    public setMantis(x : AnimatedSprite) : void{
+        this.mantis = x;
+    }
+
+    //Return true if all ants are dead
+    public getDeadAnts() : boolean {
+        if (this.done){return false;}
+        for (let sprite of this.animatedSprites){
+            if (sprite.getBehavior().getState() == 1){
+                if (sprite.getState() != "DEAD"){
+                    return false;
+                }
+            }
+        }
+        this.done = true;
+        return true;
+    }
+
+    public getMantis() : AnimatedSprite {
+        return this.mantis;
+    }
+
+    public getNearby() : Array<AnimatedSprite>{
+        let temp = [];
+        for (let sprite of this.animatedSprites) {
+            if (sprite.getPosition().getX() >= this.viewport.getX() && sprite.getPosition().getX() <= (this.viewport.getX() + this.viewport.getWidth())
+            && sprite.getPosition().getY() >= this.viewport.getY() && sprite.getPosition().getY() <= (this.viewport.getY() + this.viewport.getHeight())){
+                //pythagorean theorem to determine distance to enemy bug
+                let a = Math.abs(this.mantis.getPosition().getX() - sprite.getPosition().getX());
+                let b = Math.abs(this.mantis.getPosition().getY() - sprite.getPosition().getY());
+                let c = Math.pow(a, 2) + Math.pow(b, 2);
+                c = Math.sqrt(c);
+                //c is now the distance from player bug to other bug
+
+                if (c < 70){
+                    if (sprite.getBehavior().getState() != 3){
+                        temp.push(sprite);
+                    }
+                }
+            }
+        }
+        return temp;
     }
 
     public getPlayerX() : number{

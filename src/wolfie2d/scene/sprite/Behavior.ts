@@ -7,6 +7,9 @@ export abstract class Behavior{
     private worldHeight : number;
     private runAway : boolean;
 
+    private runX : number;
+    private runY : number;
+
     //State is what behavior to do, 0 = nothing, 1 = random walk in direction, 2 = patrol back and forth in place then run, 3 = follow mouse
 
     public constructor(state: number, scene : SceneGraph, x : number, y : number){
@@ -15,6 +18,21 @@ export abstract class Behavior{
         this.worldWidth = x;
         this.worldHeight = y;
         this.runAway = false;
+        this.runX = -1;
+        this.runY = -1;
+    }
+
+    public setRuns(x: number, y: number){
+        this.runX = x;
+        this.runY = y;
+    }
+
+    public getRunX() : number{
+        return this.runX;
+    }
+
+    public getRunY() : number{
+        return this.runY;
     }
 
     public getRunning() : boolean{
@@ -44,6 +62,8 @@ export abstract class Behavior{
     public getWidth() : number{
         return this.worldWidth;
     }
+
+    public deadFrames() : void{}
 
     public getHeight() : number{
         return this.worldHeight;

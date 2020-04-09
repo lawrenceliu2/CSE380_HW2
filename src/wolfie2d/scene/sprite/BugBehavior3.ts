@@ -6,10 +6,17 @@ export class BugBehavior3 extends Behavior {
     //Direction 0 = Up, 1 = right, 2 = down, 3 = left
     private direction : number;
 
+    private runX2 : number;
+    private runY2 : number;
+    private frameCounter : number;
+
     public constructor(state : number, scene : SceneGraph, x : number, y : number){
         super(state, scene, x, y);
         this.walking = false;
         this.direction = 0;
+        this.runX2 = -1;
+        this.runY2 = -1;
+        this.frameCounter = 0;
     }
 
     public getWalking() : boolean{
@@ -42,19 +49,42 @@ export class BugBehavior3 extends Behavior {
 
     //x and y are player bug coordinates, this.getScene().getPlayerX() is the mouse coordinates. My bad for confusing naming lol
     public think3(x : number, y : number) : Array<number>{
-        //pythagorean theorem to determine distance to mouse
-        let a = Math.abs(x - this.getScene().getPlayerX());
-        let b = Math.abs(y - this.getScene().getPlayerY());
-        let c = Math.pow(a, 2) + Math.pow(b, 2);
-        c = Math.sqrt(c);
-        //c is now the distance from player bug to mouse
+        if (this.getState() == 10){
+            if (this.runX2 == -1){
+                this.frameCounter = 120;
+                this.runX2 = this.getRunX();
+                this.runY2 = this.getRunY();
 
-        //If distance to mouse <= 20, gotta move there
-        if (c >= 5){
-            let angle = this.getAngle(x, y);
-            return [Math.cos(angle), Math.sin(angle)];
+                let theta = Math.atan2((y - this.runY2), (x - this.runX2));
+                this.frameCounter -= 1;
+                return [Math.cos(theta), Math.sin(theta)];
+            }else{
+                if (this.frameCounter == 0){
+                    this.runX2 = -1;
+                    this.runY2 = -1;
+                    this.setState(3);
+                    return null;
+                }else{
+                    let theta = Math.atan2((y - this.runY2), (x - this.runX2));
+                    this.frameCounter -= 1;
+                    return [Math.cos(theta), Math.sin(theta)];
+                }
+            }
         }else{
-            return null;
+            //pythagorean theorem to determine distance to mouse
+            let a = Math.abs(x - this.getScene().getPlayerX());
+            let b = Math.abs(y - this.getScene().getPlayerY());
+            let c = Math.pow(a, 2) + Math.pow(b, 2);
+            c = Math.sqrt(c);
+            //c is now the distance from player bug to mouse
+
+            //If distance to mouse <= 20, gotta move there
+            if (c >= 5){
+                let angle = this.getAngle(x, y);
+                return [Math.cos(angle), Math.sin(angle)];
+            }else{
+                return null;
+            }
         }
     }
 

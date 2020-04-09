@@ -36,6 +36,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
     player.getPosition().set(880, 480, 0, 1);
     player.addBehavior(3, game.getSceneGraph(), worldWidth - 100, worldHeight - 100);
     game.getSceneGraph().addAnimatedSprite(player);
+    game.getSceneGraph().setMantis(player);
 
     // Add 50 ants
     for (let i = 0; i < 50; i++) {

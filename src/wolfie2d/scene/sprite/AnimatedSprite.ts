@@ -13,7 +13,7 @@ export class AnimatedSprite extends SceneObject {
     private frameCounter : number;
     private behavior: Behavior;
     private player : Boolean;
-    //rotation 0 = Up, 1 = right, 2 = down, 3 = left
+    //direction 0 = Up, 1 = right, 2 = down, 3 = left
     private direction : number;
     
     public constructor(initSpriteType : AnimatedSpriteType, initState : string) {
@@ -66,6 +66,10 @@ export class AnimatedSprite extends SceneObject {
         return this.direction;
     }
 
+    public getBehavior() : Behavior{
+        return this.behavior;
+    }
+
     public setDirection(direction : number) : void{
         this.direction = direction;
     }
@@ -85,6 +89,12 @@ export class AnimatedSprite extends SceneObject {
     public update(delta : number) : void {
         //dont forget to change animation state
         if (this.behavior != null){
+            //If ant dead
+            if (this.behavior.getState() == -1){
+                if (this.behavior.think(this.getPosition().getX(), this.getPosition().getY()) == -5){
+                    this.setState("DEAD");
+                }
+            }
             //Ant behavior
             if (this.behavior.getState() == 1){
                 if (this.getState() == "IDLE"){
@@ -238,19 +248,46 @@ export class AnimatedSprite extends SceneObject {
                 }
             }
             //Player behavior
-            else{
+            else{ 
                 let temp : Array<number>;
                 temp = this.behavior.think3(this.getPosition().getX(), this.getPosition().getY());
                 if (temp != null){
-                    if (this.getPosition().getX() - (temp[0] * 5) >= this.behavior.getWidth()){
-                        this.getPosition().setX(this.behavior.getWidth());
+                    if (this.behavior.getState() == 10){
+                        if (this.getState() == "IDLE"){
+                            this.setState("WALK");
+                        }
+                        if (this.getPosition().getX() + (temp[0] * 5) >= this.behavior.getWidth()){
+                            this.getPosition().setX(this.behavior.getWidth());
+                        }else if (this.getPosition().getX() + (temp[0] * 5) <= 0){
+                            this.getPosition().setX(0);
+                        }else{
+                            this.getPosition().setX(this.getPosition().getX() + (temp[0] * 5));
+                        }
+                        if (this.getPosition().getY() + (temp[1] * 5) >= this.behavior.getHeight()){
+                            this.getPosition().setY(this.behavior.getHeight());
+                        }else if (this.getPosition().getY() + (temp[1] * 5) <= 0){
+                            this.getPosition().setY(0);
+                        }else{
+                            this.getPosition().setY(this.getPosition().getY() + (temp[1] * 5));
+                        }
                     }else{
-                        this.getPosition().setX(this.getPosition().getX() - (temp[0] * 5));
+                        if (this.getState() == "IDLE"){
+                            this.setState("WALK");
+                        }
+                        if (this.getPosition().getX() - (temp[0] * 5) >= this.behavior.getWidth()){
+                            this.getPosition().setX(this.behavior.getWidth());
+                        }else{
+                            this.getPosition().setX(this.getPosition().getX() - (temp[0] * 5));
+                        }
+                        if (this.getPosition().getY() - (temp[1] * 5) >= this.behavior.getHeight()){
+                            this.getPosition().setY(this.behavior.getHeight());
+                        }else{
+                            this.getPosition().setY(this.getPosition().getY() - (temp[1] * 5));
+                        }
                     }
-                    if (this.getPosition().getY() - (temp[1] * 5) >= this.behavior.getHeight()){
-                        this.getPosition().setY(this.behavior.getHeight());
-                    }else{
-                        this.getPosition().setY(this.getPosition().getY() - (temp[1] * 5));
+                }else{
+                    if (this.getState() == "WALK" && this.getBehavior().getState() != 10){
+                        this.setState("IDLE");
                     }
                 }
             }
